@@ -1,5 +1,6 @@
 
-# Random Forest Algorithm on Sonar Dataset
+# Random Forest Algorithm on Blood Spatter Analysis
+# Adapted from https://machinelearningmastery.com/implement-random-forest-scratch-python/
 from random import seed
 from random import randrange
 from csv import reader
@@ -7,7 +8,7 @@ from math import sqrt
 
 
 # Load a CSV file
-def load_csv(blood_spatters_polygence):
+def load_csv(filename):
 	dataset = list()
 	with open(filename, 'r') as file:
 		csv_reader = reader(file)
@@ -183,6 +184,7 @@ def predict(node, row):
 
 
 # Create a random subsample from the dataset with replacement
+# stays same
 def subsample(dataset, ratio):
 	sample = list()
 	n_sample = round(len(dataset) * ratio)
@@ -210,9 +212,11 @@ def random_forest(train, test, max_depth, min_size, sample_size, n_trees, n_feat
 
 if __name__ == '__main__':
 	# Test the random forest algorithm
-	seed(2)
+	# random seed
+	seed(5)
 	# load and prepare data
-	filename = './data/sonar.all-data'
+	# C:\\Users\\annaa\\PycharmProjects\\blood_spatters\\blood_spatters_polygence.csv
+	filename = '.\\data\\sonar.all-data'
 	dataset = load_csv(filename)
 	# convert string attributes to integers
 	for i in range(0, len(dataset[0]) - 1):
@@ -220,12 +224,13 @@ if __name__ == '__main__':
 	# convert class column to integers
 	str_column_to_int(dataset, len(dataset[0]) - 1)
 	# evaluate algorithm
-	n_folds = 5
-	max_depth = 10
-	min_size = 1
+	# hyperparameters
+	n_folds = 5 # number of folds in cross-fold validation
+	max_depth = 15 # maximum depth of each decision tree
+	min_size = 1 # minimum size of each decision tree
 	sample_size = 1.0
 	n_features = int(sqrt(len(dataset[0]) - 1))
-	for n_trees in [1, 5, 10]:
+	for n_trees in [1, 5, 30]: # shows the results for 1, 5, and 30 trees
 		scores = evaluate_algorithm(dataset, random_forest, n_folds, max_depth, min_size, sample_size, n_trees, n_features)
 		print('Trees: %d' % n_trees)
 		print('Scores: %s' % scores)
