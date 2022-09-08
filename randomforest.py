@@ -5,6 +5,9 @@ from random import seed
 from random import randrange
 from csv import reader
 from math import sqrt
+import numpy as np
+import matplotlib
+import matplotlib.pyplot as plt
 
 
 # Load a CSV file
@@ -216,22 +219,32 @@ if __name__ == '__main__':
 	seed(5)
 	# load and prepare data
 	# C:\\Users\\annaa\\PycharmProjects\\blood_spatters\\blood_spatters_polygence.csv
-	filename = '.\\data\\sonar.all-data'
+	filename = '.\\data\\example.csv' #.\\data\\sonar.all-data
 	dataset = load_csv(filename)
-	# convert string attributes to integers
-	for i in range(0, len(dataset[0]) - 1):
+	dataset = dataset[1:]
+	for i in range(0, len(dataset)):
+		dataset[i] = dataset[i][1:]
+	# convert string attributes to float
+	for i in range(0, len(dataset[0]) -1):
 		str_column_to_float(dataset, i)
 	# convert class column to integers
-	str_column_to_int(dataset, len(dataset[0]) - 1)
+	str_column_to_int(dataset, len(dataset[0]) - 1) #  {'1': 0, '0': 1} switching 0 and 1
 	# evaluate algorithm
 	# hyperparameters
 	n_folds = 5 # number of folds in cross-fold validation
-	max_depth = 15 # maximum depth of each decision tree
+	max_depth = 7 # maximum depth of each decision tree
 	min_size = 1 # minimum size of each decision tree
 	sample_size = 1.0
 	n_features = int(sqrt(len(dataset[0]) - 1))
-	for n_trees in [1, 5, 30]: # shows the results for 1, 5, and 30 trees
-		scores = evaluate_algorithm(dataset, random_forest, n_folds, max_depth, min_size, sample_size, n_trees, n_features)
-		print('Trees: %d' % n_trees)
-		print('Scores: %s' % scores)
-		print('Mean Accuracy: %.3f%%' % (sum(scores) / float(len(scores))))
+	results = np.zeros((4,10,n_folds))  # dims = number of trees by number of max depth by number of folds
+	for idx_n_trees, n_trees in enumerate([1, 10, 100, 1000]):  # shows the results for 1, 5, and 30 trees
+		for idx_max_depth, max_depth in enumerate(range(1, 11)):
+			scores = evaluate_algorithm(dataset, random_forest, n_folds, max_depth, min_size, sample_size, n_trees, n_features)
+			print('Trees: %d' % n_trees)
+			print('Scores: %s' % scores)
+			print('Mean Accuracy: %.3f%%' % (sum(scores) / float(len(scores))))
+			results[idx_n_trees, idx_max_depth, :] = np.array(scores)
+
+	# printing results
+	plt.scatter(range(0,n_folds), results[0,0,:])
+
