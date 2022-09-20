@@ -219,7 +219,7 @@ if __name__ == '__main__':
 	seed(5)
 	# load and prepare data
 	# C:\\Users\\annaa\\PycharmProjects\\blood_spatters\\blood_spatters_polygence.csv
-	filename = '.\\data\\example.csv' #.\\data\\sonar.all-data
+	filename = '.\\data\\example.csv'  # .\\data\\sonar.all-data
 	dataset = load_csv(filename)
 	dataset = dataset[1:]
 	for i in range(0, len(dataset)):
@@ -228,7 +228,7 @@ if __name__ == '__main__':
 	for i in range(0, len(dataset[0]) -1):
 		str_column_to_float(dataset, i)
 	# convert class column to integers
-	str_column_to_int(dataset, len(dataset[0]) - 1) #  {'1': 0, '0': 1} switching 0 and 1
+	str_column_to_int(dataset, len(dataset[0]) - 1)  # {'1': 0, '0': 1} switching 0 and 1
 	# evaluate algorithm
 	# hyperparameters
 	n_folds = 5 # number of folds in cross-fold validation
@@ -236,15 +236,42 @@ if __name__ == '__main__':
 	min_size = 1 # minimum size of each decision tree
 	sample_size = 1.0
 	n_features = int(sqrt(len(dataset[0]) - 1))
-	results = np.zeros((4,10,n_folds))  # dims = number of trees by number of max depth by number of folds
-	for idx_n_trees, n_trees in enumerate([1, 10, 100, 1000]):  # shows the results for 1, 5, and 30 trees
+	list_ntrees = [1, 10, 100]
+	list_maxdepth = list(range(1,11))
+	results = np.zeros((len(list_ntrees),len(list_maxdepth),n_folds))  # dims = number of trees by number of max depth by number of # folds
+	for idx_n_trees, n_trees in enumerate(list_ntrees):  # shows the results for 1, 5, and 30 trees
 		for idx_max_depth, max_depth in enumerate(range(1, 11)):
 			scores = evaluate_algorithm(dataset, random_forest, n_folds, max_depth, min_size, sample_size, n_trees, n_features)
 			print('Trees: %d' % n_trees)
 			print('Scores: %s' % scores)
 			print('Mean Accuracy: %.3f%%' % (sum(scores) / float(len(scores))))
 			results[idx_n_trees, idx_max_depth, :] = np.array(scores)
+# plot n_trees
+	fig = plt.figure()
+
+	plt.clf()
+	plt.plot(list_ntrees, np.mean(results[:, 0, :], axis=1), label = 'mean accuracy')
+	ax = fig.axes[0]
+	ax.set_xlabel('Number of Trees')
+	ax.set_ylabel('Accuracy (%)')
+	plt.xscale('log')
+	ax.set_xticks(list_ntrees)
+	ax.legend()
+	fig.savefig('./treesVsAcc.pdf', dpi=300)
+	plt.close()
+# plot max_depth
+	fig = plt.figure()
+	plt.clf()
+	plt.plot(list_maxdepth, np.mean(results[1, :, :], axis=1), label='mean accuracy')
+	ax = fig.axes[0]
+	ax.set_xlabel('Max Depth')
+	ax.set_ylabel('Accuracy (%)')
+	ax.set_xticks(list_maxdepth)
+	ax.legend()
+	fig.savefig('./maxdepthVsAcc.pdf', dpi=300)
+	plt.close()
 
 	# printing results
 	plt.scatter(range(0,n_folds), results[0,0,:])
+
 
