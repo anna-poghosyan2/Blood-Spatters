@@ -7,8 +7,7 @@ A machine learning project that uses the random forest algorithm to classify the
 
 Instructions are written for the Linux commandline.
 
-Create a virtual environment (I used python 3.7.8) 
-TODO: ANNA UPDATE the Python Version (check using $ python --version )
+Create a virtual environment (I used python 3.9)
 ```commandline
  python3 -m venv venv
 ```
